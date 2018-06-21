@@ -19,7 +19,9 @@ console.log('Connection to websocket server closed.');
 var test = new ROSLIB.Topic({
   ros : ros,
   name : '/state',
-  messageType : 'std_msgs/Float32MultiArray'
+  messageType : 'std_msgs/BoolMultiArray'
 });
 
-test.publish({data: [20.0, 32.0, 5.0, 64.0]})
+
+
+test.publish({data: [true, false, true, false]})
