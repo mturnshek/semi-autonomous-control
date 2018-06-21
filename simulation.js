@@ -12,8 +12,12 @@ class Asteroid {
   constructor(x, y, map_size) {
     this.x = x;
     this.y = y;
-    this.dx = 1.0;
-    this.dy = 1.0;
+    const velocity_range_min = -1.0;
+    const velocity_range_max = 1.0;
+    this.dx = Math.random() * (velocity_range_max - velocity_range_min) + velocity_range_min;
+    this.dy = Math.random() * (velocity_range_max - velocity_range_min) + velocity_range_min;
+    // this.dx = -1.0;
+    // this.dy = 0.0;
     this.r = 2.0;
     this.map_size = map_size
   }
@@ -23,8 +27,8 @@ class Asteroid {
     this.y += this.dy;
 
     // map is cyclical
-    this.x = this.x % this.map_size;
-    this.y = this.y % this.map_size;
+    this.x = (this.x + this.map_size) % this.map_size;
+    this.y = (this.y + this.map_size) % this.map_size;
   }
 }
 
@@ -43,47 +47,83 @@ class Spaceship {
     this.dx = 0.0;
     this.dy = 0.0;
     this.r = 4.0;
-    this.acceleration = 0.5;
-    this.top_speed = 5.0;
-    this.feeler_r = 8.0;
-    this.num_feelers = 32; // what the ship uses to detect surrounding asteroids
+    this.acceleration = 1.0;
+    this.top_speed = 3.0;
+    this.speed_decay = 0.5; // must be less than acceleration to allow movement
+    this.feeler_inner_r = 6.0; // feelers are what the ship uses to detect surrounding asteroids
+    this.feeler_outer_r = 8.0;
+    this.num_inner_feelers = 32; // inner ring
+    this.num_outer_feelers = 32; // outer ring
+    this.num_feelers = this.num_inner_feelers + this.num_outer_feelers;
     this.map_size = map_size;
   }
 
   get_feeler_array() {
+
     let feelers = new Array();
-    for (let i = 0; i < this.num_feelers; i++) {
-      let x = this.x + this.feeler_r * Math.cos(2 * Math.PI * i / this.num_feelers);
-      let y = this.y + this.feeler_r * Math.sin(2 * Math.PI * i / this.num_feelers);
+    for (let i = 0; i < this.num_inner_feelers; i++) {
+      let x = this.x + this.feeler_inner_r * Math.cos(2 * Math.PI * i / this.num_inner_feelers);
+      let y = this.y + this.feeler_inner_r * Math.sin(2 * Math.PI * i / this.num_inner_feelers);
 
       // map is cyclical
-      x = x % this.map_size
-      y = y % this.map_size
+      this.x = (this.x + this.map_size) % this.map_size;
+      this.y = (this.y + this.map_size) % this.map_size;
 
       feelers.push(new Feeler(x, y))
     }
+
+    for (let i = 0; i < this.num_outer_feelers; i++) {
+      let x = this.x + this.feeler_outer_r * Math.cos(2 * Math.PI * i / this.num_outer_feelers);
+      let y = this.y + this.feeler_outer_r * Math.sin(2 * Math.PI * i / this.num_outer_feelers);
+
+      // map is cyclical
+      this.x = (this.x + this.map_size) % this.map_size;
+      this.y = (this.y + this.map_size) % this.map_size;
+
+      feelers.push(new Feeler(x, y))
+    }
+
     return feelers;
   }
 
   update(action) {
-    if (action == [1, 0, 0, 0, 0]) {
+    console.log(action);
+    const action_str = action.toString();
+    if (action_str == [1, 0, 0, 0, 0].toString()) {
       // this action means to do nothing
-    } else if (action == [0, 1, 0, 0, 0]) {
-      go_left()
-    } else if (action == [0, 0, 1, 0, 0]) {
-      go_right()
-    } else if (action == [0, 0, 0, 1, 0]) {
-      go_up()
-    } else if (action == [0, 0, 0, 0, 1]) {
-      go_down()
+    } else if (action_str == [0, 1, 0, 0, 0].toString()) {
+      console.log('never going in here huh');
+      this.go_left()
+    } else if (action_str == [0, 0, 1, 0, 0].toString()) {
+      this.go_up()
+    } else if (action_str == [0, 0, 0, 1, 0].toString()) {
+      this.go_right()
+    } else if (action_str == [0, 0, 0, 0, 1].toString()) {
+      this.go_down()
     }
 
     this.x += this.dx;
     this.y += this.dy;
 
+    if ((-this.speed_decay <= this.dx) && (this.dx <= this.speed_decay)) {
+      this.dx = 0.0;
+    } else if (this.speed_decay < this.dx) {
+      this.dx -= this.speed_decay;
+    } else if (this.dx < -this.speed_decay) {
+      this.dx += this.speed_decay;
+    }
+
+    if ((-this.speed_decay <= this.dy) && (this.dy <= this.speed_decay)) {
+      this.dy = 0.0;
+    } else if (this.speed_decay < this.dy) {
+      this.dy -= this.speed_decay;
+    } else if (this.dy < -this.speed_decay) {
+      this.dy += this.speed_decay;
+    }
+
     // map is cyclical
-    this.x = this.x % this.map_size;
-    this.y = this.y % this.map_size;
+    this.x = (this.x + this.map_size) % this.map_size;
+    this.y = (this.y + this.map_size) % this.map_size;
   }
 
   go_left() {
@@ -165,13 +205,10 @@ class Simulation {
     this.state_buffer[0] = this.state_buffer[1];
     this.state_buffer[1] = this.state_buffer[2];
     this.state_buffer[2] = new_state_array;
-    console.log('entering here?');
-    console.log(this.state_buffer);
   }
 
   update(action) {
     if (this.train_mode) {
-      console.log('entered train mode update');
       this.spaceship.update(action);
       this.asteroids.forEach(function(asteroid) {
         asteroid.update();
