@@ -87,12 +87,10 @@ class Spaceship {
   }
 
   update(action) {
-    console.log(action);
     const action_str = action.toString();
     if (action_str == [1, 0, 0, 0, 0].toString()) {
       // this action means to do nothing
     } else if (action_str == [0, 1, 0, 0, 0].toString()) {
-      console.log('never going in here huh');
       this.go_left()
     } else if (action_str == [0, 0, 1, 0, 0].toString()) {
       this.go_up()
@@ -152,12 +150,14 @@ class Spaceship {
 }
 
 class Simulation {
-  constructor(train_mode) {
+  constructor(train_mode, publish_state_buffer_fn) {
+    this.train_mode = train_mode;
+    this.publish_state_buffer = publish_state_buffer_fn;
+
     this.map_size = 100.0; // both width and height
     this.create_asteroids();
     this.create_spaceship();
-    this.train_mode = train_mode;
-    this.state_buffer = Array(3); // the amount of 'frames' the model takes is 3
+    this.init_state_buffer();
   }
 
   create_asteroids() {
@@ -172,6 +172,16 @@ class Simulation {
 
   create_spaceship() {
     this.spaceship = new Spaceship(this.map_size/2, this.map_size/2, this.map_size);
+  }
+
+  init_state_buffer() {
+    this.state_buffer = Array(3); // the amount of 'frames' the model takes is 3
+
+    // the magic number 3 is an input for x velocity, y velocity, and spaceship collision binary
+    const state_size = this.spaceship.num_feelers + 3;
+    this.state_buffer[0] = Array(state_size).fill(0.0);
+    this.state_buffer[1] = Array(state_size).fill(0.0);
+    this.state_buffer[2] = Array(state_size).fill(0.0);
   }
 
   update_state() {
@@ -209,16 +219,34 @@ class Simulation {
 
   update(action) {
     if (this.train_mode) {
+      console.log('updating...', action);
       this.spaceship.update(action);
       this.asteroids.forEach(function(asteroid) {
         asteroid.update();
       });
       this.update_state();
+
+      // Concatenate the state buffers and publish
+      let a = this.state_buffer[0]
+      let b = this.state_buffer[1]
+      let c = this.state_buffer[2]
+      let flat_state_buffer = a.concat(b.concat(c));
+      this.publish_state_buffer(flat_state_buffer);
     }
     else {
+      console.log('updating...', action);
+      this.spaceship.update(action);
+      this.asteroids.forEach(function(asteroid) {
+        asteroid.update();
+      });
+      this.update_state();
       // tfjs stuff ... not necessary to test visual/train
       // also need to add the action to the state here, before sampling
       // production, sample from model using the given action and state
     }
   }
+}
+
+module.exports = {
+  Simulation: Simulation,
 }
