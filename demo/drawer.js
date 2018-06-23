@@ -7,7 +7,6 @@ class Drawer {
     let params = { width: sim.map_size*this.scale_factor, height: sim.map_size*this.scale_factor };
     this.two = new Two(params).appendTo(elem);
 
-
     this.spaceship_not_colliding_fill = '#77dd77';
     this.spaceship_not_colliding_stroke = '#aaaacc';
     this.spaceship_colliding_fill = '#ff7777';
@@ -82,8 +81,9 @@ class Drawer {
   }
 }
 
-
-
+module.exports = {
+  Drawer: Drawer
+}
 
 // var circle = two.makeCircle(72, 100, 50);
 //

@@ -18,7 +18,6 @@ class Connection:
                     s = msg['data'].decode('utf-8')
                     d = json.loads(s)
                     a = np.array(d['data'], dtype='float32')
-                    print(a)
                     return a
             time.sleep(0.001)
 
@@ -30,7 +29,6 @@ class Connection:
 if __name__ == '__main__':
     connection = Connection()
     while True:
-        time.sleep(1.0);
         connection.publish_action(np.array([1.0, 0.0, 0.0, 0.0, 0.0]))
         print(connection.get_state_buffer())
-        # time.sleep(0.01)
+        time.sleep(0.0001)
