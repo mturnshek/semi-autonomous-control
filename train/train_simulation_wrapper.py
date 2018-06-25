@@ -12,16 +12,20 @@ class SimulationWrapper:
         """
         STATE MAKEUP
             past three frames of:
-        [64 feelers, ship collision, dx, dy] = 64 + 3
+        [96 feelers, ship collision, dx, dy] = 96 + 3
             then, the human action concatted at the end, which looks like:
         [0 1 0 0 0], for example. + 5
 
-        3*(64 + 3) + 5 = 206
+        3*(96 + 3) + 5 = 302
         """
+        state_frames = 3
+        num_feelers = 96
+        self.asteroid_collision_index = state_frames*(num_feelers + 3) - 1
+        self.start_action_index = state_frames*(num_feelers + 3)
+        self.state_size = state_frames*(num_feelers + 3) + 5
 
         # Tensorforce environment specs
-        self.states = dict(shape=(206,), type='float')
-        # self.states = dict(shape=(5), type='float')
+        self.states = dict(shape=(self.state_size,), type='float')
         self.actions = dict(type='int', num_actions=5)
 
         self.total_episode_steps = 1000
@@ -41,7 +45,6 @@ class SimulationWrapper:
     def get_state(self):
         state_buffer = self.connection.get_state_buffer()
         action = self.action_gen.next_action()
-        # return action
         return np.concatenate((state_buffer, action))
 
     def reset(self):
@@ -52,16 +55,14 @@ class SimulationWrapper:
     def is_ship_colliding(self, state):
         # if this value in the state is 1.0, that means the ship is colliding
         # with an asteroid.
-        # return False
-        return (state[197] == 1.0)
+        return (state[self.asteroid_collision_index] == 1.0)
 
     def is_human_action_passed_through(self, state, action):
-        human_action = state[201:206]
+        human_action = state[self.start_action_index:self.state_size]
         return np.array_equal(action, human_action)
-        # return np.array_equal(state, action)
 
     def parse_reward_and_log(self, state, action):
-        ship_collision_reward = -3.0 # just trying this to see if it learns or what
+        ship_collision_reward = -5.0 # just trying this to see if it learns or what
         human_action_passthrough_reward = 1.0
         other_action_reward = 0.0
 

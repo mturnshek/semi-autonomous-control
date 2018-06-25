@@ -12,6 +12,7 @@ class Connection {
         const action = JSON.parse(message);
         action_callback(action);
       } catch (e) {
+        console.log(e)
         console.log("ERROR: Incorrectly formatted message.");
       }
     })

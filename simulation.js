@@ -51,38 +51,34 @@ class Spaceship {
     this.top_speed = 3.0;
     this.speed_decay = 0.5; // must be less than acceleration to allow movement
     this.feeler_inner_r = 6.0; // feelers are what the ship uses to detect surrounding asteroids
-    this.feeler_outer_r = 8.0;
+    this.feeler_middle_r = 9.0;
+    this.feeler_outer_r = 12.0;
     this.num_inner_feelers = 32; // inner ring
+    this.num_middle_feelers = 32; //middle ring
     this.num_outer_feelers = 32; // outer ring
-    this.num_feelers = this.num_inner_feelers + this.num_outer_feelers;
+    this.num_feelers = this.num_inner_feelers + this.num_middle_feelers + this.num_outer_feelers;
     this.map_size = map_size;
+  }
+
+  add_feeler_ring(feeler_array, num_feelers, feeler_ring_radius) {
+    for (let i = 0; i < num_feelers; i++) {
+      let x = this.x + feeler_ring_radius * Math.cos(2 * Math.PI * i / num_feelers);
+      let y = this.y + feeler_ring_radius * Math.sin(2 * Math.PI * i / num_feelers);
+
+      // map is cyclical
+      this.x = (this.x + this.map_size) % this.map_size;
+      this.y = (this.y + this.map_size) % this.map_size;
+
+      feeler_array.push(new Feeler(x, y))
+    }
   }
 
   get_feeler_array() {
 
     let feelers = new Array();
-    for (let i = 0; i < this.num_inner_feelers; i++) {
-      let x = this.x + this.feeler_inner_r * Math.cos(2 * Math.PI * i / this.num_inner_feelers);
-      let y = this.y + this.feeler_inner_r * Math.sin(2 * Math.PI * i / this.num_inner_feelers);
-
-      // map is cyclical
-      this.x = (this.x + this.map_size) % this.map_size;
-      this.y = (this.y + this.map_size) % this.map_size;
-
-      feelers.push(new Feeler(x, y))
-    }
-
-    for (let i = 0; i < this.num_outer_feelers; i++) {
-      let x = this.x + this.feeler_outer_r * Math.cos(2 * Math.PI * i / this.num_outer_feelers);
-      let y = this.y + this.feeler_outer_r * Math.sin(2 * Math.PI * i / this.num_outer_feelers);
-
-      // map is cyclical
-      this.x = (this.x + this.map_size) % this.map_size;
-      this.y = (this.y + this.map_size) % this.map_size;
-
-      feelers.push(new Feeler(x, y))
-    }
-
+    this.add_feeler_ring(feelers, this.num_inner_feelers, this.feeler_inner_r);
+    this.add_feeler_ring(feelers, this.num_middle_feelers, this.feeler_middle_r);
+    this.add_feeler_ring(feelers, this.num_outer_feelers, this.feeler_outer_r);
     return feelers;
   }
 

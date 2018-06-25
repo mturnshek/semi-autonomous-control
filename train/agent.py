@@ -1,21 +1,19 @@
 import json
 
-from tensorforce.agents import DQNAgent, Agent
+import tensorflow as tf
+
+from tensorforce.agents import Agent
 from train_simulation_wrapper import SimulationWrapper
+
 
 environment = SimulationWrapper()
 
-# Network is an ordered list of layers
-# network_spec = [dict(type='dense', size=256), dict(type='dense', size=128)]
-with open('tensorforce_configs/mlp2_network.json', 'r') as fp:
+with open('tensorforce_configs/mlp2_64_network.json', 'r') as fp:
     network_spec = json.load(fp=fp)
 
 with open('tensorforce_configs/ppo.json', 'r') as fp:
     agent_config = json.load(fp=fp)
 
-# initial_epsilon = 0.6
-# final_epsilon = 0.0
-# anneal_timesteps = 100000
 agent = Agent.from_spec(
         spec=agent_config,
         kwargs=dict(
@@ -24,36 +22,24 @@ agent = Agent.from_spec(
             network=network_spec,
         )
     )
-# agent = DQNAgent(
-#     states=environment.states,
-#     actions=environment.actions,
-#     network=network_spec,
-#     memory=dict(
-#         type='replay',
-#         include_next_states=True,
-#         capacity=50000
-#     ),
-#     optimizer=dict(
-#         type='clipped_step',
-#         clipping_value=0.01,
-#         optimizer=dict(
-#             type='adam',
-#             learning_rate=1e-3
-#         )
-#     ),
-#     actions_exploration=dict(
-#         type='epsilon_anneal',
-#         initial_epsilon=initial_epsilon,
-#         final_epsilon=final_epsilon,
-#         timesteps=anneal_timesteps
-#     ),
-#     discount = 0.98,
-#     target_sync_frequency=100,
-#     double_q_model=True
-# )
+
+# print(agent.model.actions_output['action'].name)
+# exit()
+# print(dir(agent.model))
+# print(agent.model)
+# print(dir(agent.model.graph))
+# print(agent.model.summarizer)
+# print(agent.model.summaries)
+# print(agent.model.get_summaries())
+# print(agent.model.get_savable_components())
+# print(agent.saver)
+# print(dir(agent.saver))
+# tf.train.write_graph(agent.model.graph, 'saved_models', 'ppo_agent.pb')
+# exit()
 
 max_episodes = 1000
 max_timesteps = 2000
+episode_save_period = 10
 
 episode = 0
 episode_rewards = list()
@@ -66,22 +52,13 @@ while True:
     episode_reward = 0.0
     while True:
         action_int = agent.act(states=state)
-        # print('\n\n')
-        # print('state', state)
-        # print('action', action_int)
-        # print('\n\n')
         state, reward, terminal = environment.execute(action_int)
-        # print('about to observe', reward, terminal)
         agent.observe(reward=reward, terminal=terminal)
-        # print('observed')
 
         timestep += 1
         episode_reward += reward
 
-        # print('before terminal or timestep check')
         if terminal or timestep == max_timesteps:
-            # print('entered terminal or timestep clause')
-            # print(terminal, timestep, max_timesteps)
             break
 
     episode += 1
@@ -95,11 +72,10 @@ while True:
     print('num ups: ', environment.episode_n_action_up)
     print('num rights: ', environment.episode_n_action_right)
     print('num downs: ', environment.episode_n_action_down)
-    # total_timesteps = max_timesteps * episode
-    # current_epsilon = initial_epsilon - total_timesteps*(initial_epsilon - final_epsilon)/anneal_timesteps
-    # print('current epsilon: ', current_epsilon)
     print('\n\n')
     episode_rewards.append(episode_reward)
-    #agent.save_model('saved_models/dqn_agent')
+
+    if episode % episode_save_period == 0:
+        agent.model.save('saved_models/ppo_agent')
     if episode == max_episodes:
         break

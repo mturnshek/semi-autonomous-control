@@ -14,12 +14,12 @@
 
     "step_optimizer": {
         "type": "adam",
-        "learning_rate": 1e-2
+        "learning_rate": 5e-3
     },
     "subsampling_fraction": 0.1,
     "optimization_steps": 50,
 
-    "discount": 0.50,
+    "discount": 0.80,
     "entropy_regularization": 0.01,
     "gae_lambda": null,
     "likelihood_ratio_clipping": 0.2,
@@ -33,7 +33,7 @@
         "type": "multi_step",
         "optimizer": {
             "type": "adam",
-            "learning_rate": 1e-2
+            "learning_rate": 5e-3
         },
         "num_steps": 5
     },
