@@ -66,17 +66,24 @@ while True:
     episode_reward = 0.0
     while True:
         action_int = agent.act(states=state)
-        # print('\n\n')
-        # print('state', state)
-        # print('action', action_int)
-        # print('\n\n')
+        print('\n\n')
+        print('state', state)
+        print('action', action_int)
+        print('\n\n')
         state, reward, terminal = environment.execute(action_int)
-        agent.observe(reward=reward, terminal=terminal)
+        print('about to observe', reward, terminal)
+        if terminal:
+            reward = 0.0
+        agent.atomic_observe(reward=reward, terminal=terminal)
+        print('observed')
 
         timestep += 1
         episode_reward += reward
 
+        print('before terminal or timestep check')
         if terminal or timestep == max_timesteps:
+            print('entered terminal or timestep clause')
+            print(terminal, timestep, max_timesteps)
             break
 
     episode += 1

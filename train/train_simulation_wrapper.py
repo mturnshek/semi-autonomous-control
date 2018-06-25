@@ -24,6 +24,8 @@ class SimulationWrapper:
         self.states = dict(shape=(5), type='float')
         self.actions = dict(type='int', num_actions=5)
 
+        self.total_episode_steps = 1000
+        self.current_episode_step = 0
         self.reset_debug_vars()
 
     def reset_debug_vars(self):
@@ -85,6 +87,13 @@ class SimulationWrapper:
             return 1.0
         return reward
 
+    def is_terminal(self):
+        if self.current_episode_step == self.total_episode_steps:
+            self.current_episode_step = 0
+            return True
+        else:
+            return False
+
     def int_to_action_one_hot_and_log(self, action_int):
         if action_int == 0:
             self.episode_n_action_none += 1
@@ -103,9 +112,16 @@ class SimulationWrapper:
             return self.action_gen.down
 
     def execute(self, action_int):
+        print('enter execute')
         action = self.int_to_action_one_hot_and_log(action_int)
         self.connection.publish_action(action)
+        print('published action')
         state = self.get_state()
+        print('got state')
         reward = self.parse_reward_and_log(state, action)
-        terminal = False
+        print('parsed reward')
+        terminal = self.is_terminal()
+        print('checked terminal')
+        self.current_episode_step += 1
+        print('about to exit execute')
         return (state, reward, terminal)
