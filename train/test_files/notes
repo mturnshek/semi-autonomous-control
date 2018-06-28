@@ -3,5 +3,6 @@ ppo/actions-and-internals/categorical/sample/Select:0
 ppo/actions-and-internals/categorical/sample/Select
 
 python3 freeze_graph.py --model_dir=./ --output_node_names=ppo/actions-and-internals/categorical/sample/Select
+prefix/ppo/actions-and-internals/categorical/sample/ArgMax
 
 tensorboard --logdir tensorflow/logdir/
