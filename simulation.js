@@ -215,7 +215,7 @@ class Simulation {
 
   update(action) {
     if (this.train_mode) {
-      console.log('updating...', action);
+      // console.log('updating...', action);
       this.spaceship.update(action);
       this.asteroids.forEach(function(asteroid) {
         asteroid.update();
@@ -230,7 +230,7 @@ class Simulation {
       this.publish_state_buffer(flat_state_buffer);
     }
     else {
-      console.log('updating...', action);
+      //console.log('updating...', action);
       this.spaceship.update(action);
       this.asteroids.forEach(function(asteroid) {
         asteroid.update();
