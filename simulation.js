@@ -242,7 +242,3 @@ class Simulation {
     }
   }
 }
-
-module.exports = {
-  Simulation: Simulation,
-}

@@ -6,76 +6,94 @@ from tensorforce.agents import Agent
 from train_simulation_wrapper import SimulationWrapper
 
 
-environment = SimulationWrapper()
+class SemiAutonomousAgent:
+    def __init__(self, training=False):
+        self.environment = SimulationWrapper()
+        self.default_path = 'saved_models/ppo_agent'
 
-with open('tensorforce_configs/mlp2_64_network.json', 'r') as fp:
-    network_spec = json.load(fp=fp)
+    def run(self):
+        """
+            The agent acts on its environment without learning.
+        """
+        while True:
+            state = self.environment.reset()
+            self.tensorforce_agent.reset()
+            while True:
+                action_int = tensorforce_agent.act(states=state)
+                state, _, _, = environment.execute(action_int)
 
-with open('tensorforce_configs/ppo.json', 'r') as fp:
-    agent_config = json.load(fp=fp)
+    def train(self, save=True):
+        """
+            The agent acts on and learns from its environment.
+        """
+        max_episodes = 1000
+        max_timesteps = 2000
+        episode_save_period = 10
+        episode = 0
+        episode_rewards = []
 
-agent = Agent.from_spec(
-        spec=agent_config,
-        kwargs=dict(
-            states=environment.states,
-            actions=environment.actions,
-            network=network_spec,
-        )
-    )
+        while True:
+            state = self.environment.reset()
+            self.tensorforce_agent.reset()
 
-# print(agent.model.actions_output['action'].name)
-# exit()
-# print(dir(agent.model))
-# print(agent.model)
-# print(dir(agent.model.graph))
-# print(agent.model.summarizer)
-# print(agent.model.summaries)
-# print(agent.model.get_summaries())
-# print(agent.model.get_savable_components())
-# print(agent.saver)
-# print(dir(agent.saver))
-# tf.train.write_graph(agent.model.graph, 'saved_models', 'ppo_agent.pb')
-# exit()
+            timestep = 0
+            episode_reward = 0.0
+            while True:
+                action_int = tensorforce_agent.act(states=state)
+                state, reward, terminal = environment.execute(action_int)
+                tensorforce_agent.observe(reward=reward, terminal=terminal)
 
-max_episodes = 1000
-max_timesteps = 2000
-episode_save_period = 10
+                timestep += 1
+                episode_reward += reward
 
-episode = 0
-episode_rewards = list()
+                if terminal or timestep == max_timesteps:
+                    break
 
-while True:
-    state = environment.reset()
-    agent.reset()
+            episode += 1
+            episode_rewards.append(episode_reward)
+            self.print_status()
 
-    timestep = 0
-    episode_reward = 0.0
-    while True:
-        action_int = agent.act(states=state)
-        state, reward, terminal = environment.execute(action_int)
-        agent.observe(reward=reward, terminal=terminal)
+            if save and (episode % episode_save_period == 0):
+                self.save()
+            if episode == max_episodes:
+                break
 
-        timestep += 1
-        episode_reward += reward
+    def print_status(self):
+        print('EPISODE', episode)
+        print('reward:', episode_reward)
+        print('num ship collisions: ', this.environment.episode_n_ship_collision)
+        print('num action passthroughs: ', this.environment.episode_n_action_passthrough)
+        print('num action overrides: ', this.environment.episode_n_action_override)
+        print('num nones: ', this.environment.episode_n_action_none)
+        print('num lefts: ', this.environment.episode_n_action_left)
+        print('num ups: ', this.environment.episode_n_action_up)
+        print('num rights: ', this.environment.episode_n_action_right)
+        print('num downs: ', this.environment.episode_n_action_down)
+        print('\n\n')
 
-        if terminal or timestep == max_timesteps:
-            break
 
-    episode += 1
-    print('EPISODE', episode)
-    print('reward:', episode_reward)
-    print('num ship collisions: ', environment.episode_n_ship_collision)
-    print('num action passthroughs: ', environment.episode_n_action_passthrough)
-    print('num action overrides: ', environment.episode_n_action_override)
-    print('num nones: ', environment.episode_n_action_none)
-    print('num lefts: ', environment.episode_n_action_left)
-    print('num ups: ', environment.episode_n_action_up)
-    print('num rights: ', environment.episode_n_action_right)
-    print('num downs: ', environment.episode_n_action_down)
-    print('\n\n')
-    episode_rewards.append(episode_reward)
+    def create_tensorforce_agent(self):
+        with open('tensorforce_configs/mlp2_64_network.json', 'r') as fp:
+            network_spec = json.load(fp=fp)
 
-    if episode % episode_save_period == 0:
-        agent.model.save('saved_models/ppo_agent')
-    if episode == max_episodes:
-        break
+        with open('tensorforce_configs/ppo.json', 'r') as fp:
+            agent_config = json.load(fp=fp)
+
+        self.tensorforce_agent = Agent.from_spec(
+                spec=agent_config,
+                kwargs=dict(
+                    states=this.environment.states,
+                    actions=this.environment.actions,
+                    network=network_spec,
+                )
+            )
+
+    def load(self, path=None):
+        if path == None:
+            path = self.default_path
+        # more ...
+
+    def save(self, path=None):
+        if path == None:
+            path = self.default_path
+        self.tensorforce_agent.model.save(self.default_path)
