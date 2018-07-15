@@ -1,13 +1,13 @@
 import numpy as np
 
-from connection import Connection
 from markov_action_generator import MarkovActionGenerator
+from rl_agent_server import Connection
 
 
-class SimulationWrapper:
-    def __init__(self):
-        self.connection = Connection()
+class SemiAutonomousControlEnvironment:
+    def __init__(self, train=False):
         self.action_gen = MarkovActionGenerator()
+        self.connection = Connection()
 
         """
         STATE MAKEUP
@@ -32,6 +32,13 @@ class SimulationWrapper:
         self.current_episode_step = 0
         self.reset_debug_vars()
 
+    def process_state_buffer(self, state_buffer):
+        if train:
+            action = self.action_gen.next_action()
+        # else:
+        #     action = self.player_action
+        self.state_buffer = np.concatenate((state_buffer, action))
+
     def reset_debug_vars(self):
         self.episode_n_ship_collision = 0
         self.episode_n_action_passthrough = 0
@@ -49,7 +56,7 @@ class SimulationWrapper:
 
     def reset(self):
         self.reset_debug_vars()
-        self.connection.publish_action(self.action_gen.none)
+        self.connection.send_action(self.action_gen.none)
         return self.get_state()
 
     def is_ship_colliding(self, state):
@@ -113,8 +120,8 @@ class SimulationWrapper:
     def execute(self, action_int):
         # print('enter execute')
         action = self.int_to_action_one_hot_and_log(action_int)
-        self.connection.publish_action(action)
-        # print('published action')
+        self.connection.send_action(action)
+        print('sent action')
         state = self.get_state()
         # print('got state')
         reward = self.parse_reward_and_log(state, action)

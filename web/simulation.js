@@ -146,9 +146,8 @@ class Spaceship {
 }
 
 class Simulation {
-  constructor(train_mode, publish_state_buffer_fn) {
+  constructor(train_mode) {
     this.train_mode = train_mode;
-    this.publish_state_buffer = publish_state_buffer_fn;
 
     this.map_size = 100.0; // both width and height
     this.create_asteroids();
@@ -178,6 +177,14 @@ class Simulation {
     this.state_buffer[0] = Array(state_size).fill(0.0);
     this.state_buffer[1] = Array(state_size).fill(0.0);
     this.state_buffer[2] = Array(state_size).fill(0.0);
+  }
+
+  get_concatted_state_buffer() {
+    let a = this.state_buffer[0]
+    let b = this.state_buffer[1]
+    let c = this.state_buffer[2]
+    let flat_state_buffer = a.concat(b.concat(c));
+    return flat_state_buffer;
   }
 
   update_state() {
@@ -215,22 +222,13 @@ class Simulation {
 
   update(action) {
     if (this.train_mode) {
-      // console.log('updating...', action);
       this.spaceship.update(action);
       this.asteroids.forEach(function(asteroid) {
         asteroid.update();
       });
       this.update_state();
-
-      // Concatenate the state buffers and publish
-      let a = this.state_buffer[0]
-      let b = this.state_buffer[1]
-      let c = this.state_buffer[2]
-      let flat_state_buffer = a.concat(b.concat(c));
-      this.publish_state_buffer(flat_state_buffer);
     }
     else {
-      //console.log('updating...', action);
       this.spaceship.update(action);
       this.asteroids.forEach(function(asteroid) {
         asteroid.update();

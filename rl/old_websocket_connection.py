@@ -2,6 +2,7 @@ import asyncio
 import websocket
 import json
 
+
 class SimulationConnection:
     def __init__(self):
         self.poll_period = 0.01
@@ -17,6 +18,20 @@ class SimulationConnection:
     def send_action(self, action):
         self.ws.send(json.dumps(action))
 
+class SimulationConnection:
+    def __init__(self, fn_upon_recv_state_buffer):
+        pass
+
+
+
+
+async def echo(websocket, path):
+    async for message in websocket:
+        await websocket.send(message)
+
+asyncio.get_event_loop().run_until_complete(
+    websockets.serve(echo, 'localhost', 8765))
+asyncio.get_event_loop().run_forever()
 
 if __name__ == '__main__':
     """

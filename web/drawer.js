@@ -80,15 +80,3 @@ class Drawer {
     this.two.update();
   }
 }
-
-module.exports = {
-  Drawer: Drawer
-}
-
-// var circle = two.makeCircle(72, 100, 50);
-//
-// circle.fill = '#FF8000';
-// circle.stroke = 'orangered';
-// circle.linewidth = 5;
-//
-// two.update();
