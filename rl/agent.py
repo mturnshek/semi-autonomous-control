@@ -29,42 +29,42 @@ class SemiAutonomousAgent:
         """
             The agent continually acts on and learns from its environment.
         """
-        max_episodes = 1000
-        max_timesteps = 2000
-        episode_save_period = 10
-        episode = 0
-        episode_rewards = []
+        self.max_episodes = 1000
+        self.max_timesteps = 2000
+        self.episode_save_period = 10
+        self.episode = 0
+        self.episode_rewards = []
 
-        print('about to start train loop')
+        print('Ready to start environment.')
         while True:
             state = self.environment.reset()
             self.tensorforce_agent.reset()
 
             timestep = 0
-            episode_reward = 0.0
+            self.episode_reward = 0.0
             while True:
                 action_int = self.tensorforce_agent.act(states=state)
                 state, reward, terminal = self.environment.execute(action_int)
                 self.tensorforce_agent.observe(reward=reward, terminal=terminal)
 
                 timestep += 1
-                episode_reward += reward
+                self.episode_reward += reward
 
-                if terminal or timestep == max_timesteps:
+                if terminal or timestep == self.max_timesteps:
                     break
 
-            episode += 1
-            episode_rewards.append(episode_reward)
+            self.episode += 1
+            self.episode_rewards.append(self.episode_reward)
             self.print_status()
 
-            if save and (episode % episode_save_period == 0):
+            if save and (self.episode % self.episode_save_period == 0):
                 self.save()
-            if episode == max_episodes:
+            if self.episode == self.max_episodes:
                 break
 
     def print_status(self):
-        print('EPISODE', episode)
-        print('reward:', episode_reward)
+        print('EPISODE', self.episode)
+        print('reward:', self.episode_reward)
         print('num ship collisions: ', self.environment.episode_n_ship_collision)
         print('num action passthroughs: ', self.environment.episode_n_action_passthrough)
         print('num action overrides: ', self.environment.episode_n_action_override)

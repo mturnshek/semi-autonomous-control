@@ -1,7 +1,7 @@
 import numpy as np
 
 from markov_action_generator import MarkovActionGenerator
-from rl_agent_server import Connection
+from connection import Connection
 
 
 class SemiAutonomousControlEnvironment:
@@ -50,7 +50,7 @@ class SemiAutonomousControlEnvironment:
         self.episode_n_action_down = 0
 
     def get_state(self):
-        state_buffer = self.connection.get_state_buffer()
+        state_buffer = self.connection.get_state()
         action = self.action_gen.next_action()
         return np.concatenate((state_buffer, action))
 
@@ -118,16 +118,10 @@ class SemiAutonomousControlEnvironment:
             return self.action_gen.down
 
     def execute(self, action_int):
-        # print('enter execute')
         action = self.int_to_action_one_hot_and_log(action_int)
         self.connection.send_action(action)
-        print('sent action')
         state = self.get_state()
-        # print('got state')
         reward = self.parse_reward_and_log(state, action)
-        # print('parsed reward')
         terminal = self.is_terminal()
-        # print('checked terminal')
         self.current_episode_step += 1
-        # print('about to exit execute')
         return (state, reward, terminal)
