@@ -1,12 +1,16 @@
 import numpy as np
 
-from markov_action_generator import MarkovActionGenerator
 from connection import Connection
 
 
 class SemiAutonomousControlEnvironment:
     def __init__(self, train=False):
-        self.action_gen = MarkovActionGenerator()
+        self.action_none = np.array([1., 0., 0., 0., 0.])
+        self.action_left = np.array([0., 1., 0., 0., 0.])
+        self.action_up = np.array([0., 0., 1., 0., 0.])
+        self.action_right = np.array([0., 0., 0., 1., 0.])
+        self.action_down = np.array([0., 0., 0., 0., 1.])
+
         self.connection = Connection()
 
         """
@@ -20,7 +24,7 @@ class SemiAutonomousControlEnvironment:
         """
         state_frames = 3
         num_feelers = 96
-        self.asteroid_collision_index = state_frames*(num_feelers + 3) - 1
+        self.asteroid_collision_index = state_frames*(num_feelers + 3) - 3
         self.start_action_index = state_frames*(num_feelers + 3)
         self.state_size = state_frames*(num_feelers + 3) + 5
 
@@ -31,13 +35,6 @@ class SemiAutonomousControlEnvironment:
         self.total_episode_steps = 1000
         self.current_episode_step = 0
         self.reset_debug_vars()
-
-    def process_state_buffer(self, state_buffer):
-        if train:
-            action = self.action_gen.next_action()
-        # else:
-        #     action = self.player_action
-        self.state_buffer = np.concatenate((state_buffer, action))
 
     def reset_debug_vars(self):
         self.episode_n_ship_collision = 0
@@ -50,13 +47,11 @@ class SemiAutonomousControlEnvironment:
         self.episode_n_action_down = 0
 
     def get_state(self):
-        state_buffer = self.connection.get_state()
-        action = self.action_gen.next_action()
-        return np.concatenate((state_buffer, action))
+        return self.connection.get_state()
 
     def reset(self):
         self.reset_debug_vars()
-        self.connection.send_action(self.action_gen.none)
+        self.connection.send_action(self.action_none)
         return self.get_state()
 
     def is_ship_colliding(self, state):
@@ -69,7 +64,7 @@ class SemiAutonomousControlEnvironment:
         return np.array_equal(action, human_action)
 
     def parse_reward_and_log(self, state, action):
-        ship_collision_reward = -5.0 # just trying this to see if it learns or what
+        ship_collision_reward = -5.0
         human_action_passthrough_reward = 1.0
         other_action_reward = 0.0
 
@@ -103,19 +98,19 @@ class SemiAutonomousControlEnvironment:
     def int_to_action_one_hot_and_log(self, action_int):
         if action_int == 0:
             self.episode_n_action_none += 1
-            return self.action_gen.none
+            return self.action_none
         elif action_int == 1:
             self.episode_n_action_left += 1
-            return self.action_gen.left
+            return self.action_left
         elif action_int == 2:
             self.episode_n_action_up += 1
-            return self.action_gen.up
+            return self.action_up
         elif action_int == 3:
             self.episode_n_action_right += 1
-            return self.action_gen.right
+            return self.action_right
         elif action_int == 4:
             self.episode_n_action_down += 1
-            return self.action_gen.down
+            return self.action_down
 
     def execute(self, action_int):
         action = self.int_to_action_one_hot_and_log(action_int)

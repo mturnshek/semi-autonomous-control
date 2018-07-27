@@ -38,6 +38,10 @@ class Controller {
     window.addEventListener('keyup', release, false);
   }
 
+  get_action() {
+    return this.action;
+  }
+
   update() {
     if (this.left_pressed) {
       this.action = [0, 1, 0, 0, 0];

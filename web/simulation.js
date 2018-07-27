@@ -1,7 +1,17 @@
+// gives distance, accounting for map wrapping
 function distance (o1, o2) {
-  var dx = o2.x - o1.x;
-  var dy = o2.y - o1.y;
-  return Math.sqrt(dx*dx + dy*dy);
+  const map_size = 100;
+  const dx = o2.x - o1.x;
+  const dx_wrap = dx - map_size;
+  const dy = o2.y - o1.y;
+  const dy_wrap = dy - map_size;
+
+  distance1 = Math.sqrt(dx*dx + dy*dy);
+  distance2 = Math.sqrt(dx_wrap*dx_wrap + dy*dy);
+  distance3 = Math.sqrt(dx*dx + dy_wrap*dy_wrap);
+  distance4 = Math.sqrt(dx_wrap*dx_wrap + dy_wrap*dy_wrap);
+
+  return Math.min(distance1, distance2, distance3, distance4);
 }
 
 function is_overlapping(o1, o2) {

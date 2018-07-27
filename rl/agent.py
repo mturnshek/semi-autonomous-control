@@ -7,9 +7,9 @@ from environment import SemiAutonomousControlEnvironment
 
 
 class SemiAutonomousAgent:
-    def __init__(self, train=True, new_model=True, model_path='saved_models/ppo_agent'):
+    def __init__(self, new_model=True, model_path='saved_models/ppo_agent'):
         self.environment = SemiAutonomousControlEnvironment()
-        self.model_path = 'saved_models/ppo_agent'
+        self.model_path = model_path
         self.tensorforce_agent = self.generate_tensorforce_agent()
         if not new_model:
             self.load_model() # loads from self.model_path unless specified
@@ -58,7 +58,7 @@ class SemiAutonomousAgent:
             self.print_status()
 
             if save and (self.episode % self.episode_save_period == 0):
-                self.save()
+                self.save_model()
             if self.episode == self.max_episodes:
                 break
 
@@ -93,9 +93,11 @@ class SemiAutonomousAgent:
     def save_model(self, path=None):
         if path == None:
             path = self.model_path
+        print(path)
         self.tensorforce_agent.save_model(path)
 
     def load_model(self, path=None):
         if path == None:
             path = self.model_path
-        self.tensorforce_agent.restore_model(path)
+        print(path)
+        self.tensorforce_agent.restore_model(directory='saved_models')
