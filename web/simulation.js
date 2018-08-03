@@ -167,9 +167,9 @@ class Simulation {
 
   create_asteroids() {
     this.asteroids = new Array();
-    let asteroid_spacing = 20.0;
-    for (let x = 0; x < 100; x += 20) {
-      for (let y = 0; y < 100; y += 20) {
+    let asteroid_spacing = 40.0;
+    for (let x = 0; x < this.map_size; x += asteroid_spacing) {
+      for (let y = 0; y < this.map_size; y += asteroid_spacing) {
         this.asteroids.push(new Asteroid(x, y, this.map_size));
       }
     }

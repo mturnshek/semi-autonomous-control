@@ -18,6 +18,7 @@ class SemiAutonomousAgent:
         """
             The agent continually acts on its environment without learning.
         """
+        print('Reading to start environment for demoing.')
         while True:
             state = self.environment.reset()
             self.tensorforce_agent.reset()
@@ -35,7 +36,7 @@ class SemiAutonomousAgent:
         self.episode = 0
         self.episode_rewards = []
 
-        print('Ready to start environment.')
+        print('Ready to start environment for training.')
         while True:
             state = self.environment.reset()
             self.tensorforce_agent.reset()
