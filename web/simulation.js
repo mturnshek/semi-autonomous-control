@@ -57,6 +57,7 @@ class Spaceship {
     this.dx = 0.0;
     this.dy = 0.0;
     this.r = 4.0;
+    this.direction = 'up';
     this.acceleration = 1.0;
     this.top_speed = 3.0;
     this.speed_decay = 0.5; // must be less than acceleration to allow movement
@@ -70,10 +71,39 @@ class Spaceship {
     this.map_size = map_size;
   }
 
+  rotate_direction(n) {
+    let i = 0;
+    while (i < n) {
+      if (this.direction == 'right') {
+        this.direction = 'up';
+      } else if (this.direction == 'up') {
+        this.direction = 'left';
+      } else if (this.direction == 'left') {
+        this.direction = 'down';
+      } else {
+        this.direction = 'right'
+      }
+      i += 1;
+    }
+  }
+
+  get_ship_angle() {
+    if (this.direction == 'right') {
+      return 0;
+    } else if (this.direction == 'up') {
+      return (Math.PI / 2.0);
+    } else if (this.direction == 'left') {
+      return Math.PI;
+    } else {
+      return (3.0 * Math.PI / 2.0);
+    }
+  }
+
   add_feeler_ring(feeler_array, num_feelers, feeler_ring_radius) {
+    const rotation = this.get_ship_angle();
     for (let i = 0; i < num_feelers; i++) {
-      let x = this.x + feeler_ring_radius * Math.cos(2 * Math.PI * i / num_feelers);
-      let y = this.y + feeler_ring_radius * Math.sin(2 * Math.PI * i / num_feelers);
+      let x = this.x + feeler_ring_radius * Math.cos(2 * Math.PI * i / num_feelers + rotation);
+      let y = this.y + feeler_ring_radius * Math.sin(2 * Math.PI * i / num_feelers + rotation);
 
       // map is cyclical
       this.x = (this.x + this.map_size) % this.map_size;
@@ -84,7 +114,6 @@ class Spaceship {
   }
 
   get_feeler_array() {
-
     let feelers = new Array();
     this.add_feeler_ring(feelers, this.num_inner_feelers, this.feeler_inner_r);
     this.add_feeler_ring(feelers, this.num_middle_feelers, this.feeler_middle_r);
@@ -94,16 +123,31 @@ class Spaceship {
 
   update(action) {
     const action_str = action.toString();
+    const move = false;
     if (action_str == [1, 0, 0, 0, 0].toString()) {
       // this action means to do nothing
     } else if (action_str == [0, 1, 0, 0, 0].toString()) {
-      this.go_left()
+      move = true;
     } else if (action_str == [0, 0, 1, 0, 0].toString()) {
-      this.go_up()
+      move = true;
+      this.rotate_direction(1);
     } else if (action_str == [0, 0, 0, 1, 0].toString()) {
-      this.go_right()
+      move = true;
+      this.rotate_direction(2);
     } else if (action_str == [0, 0, 0, 0, 1].toString()) {
-      this.go_down()
+      move = true;
+      this.rotate_direction(3);
+    }
+    if move {
+      if (this.direction == 'right') {
+        this.go_right();
+      } else if (this.direction == 'up') {
+        this.go_up();
+      } else if (this.direction == 'left') {
+        this.go_left();
+      } else {
+        this.go_down();
+      }
     }
 
     this.x += this.dx;
@@ -228,6 +272,20 @@ class Simulation {
     this.state_buffer[0] = this.state_buffer[1];
     this.state_buffer[1] = this.state_buffer[2];
     this.state_buffer[2] = new_state_array;
+  }
+
+  apply_rotation(action) {
+    if (action = [1, 0, 0, 0, 0]) {
+      ;
+    } else if (action = [0, 1, 0, 0, 0]) {
+      ;
+    } else if (action = [0, 0, 1, 0, 0]) {
+      ;
+    } else if (action = [0, 0, 0, 1, 0]) {
+
+    } else {
+
+    }
   }
 
   update(action) {
