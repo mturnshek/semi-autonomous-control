@@ -30,7 +30,7 @@ class SemiAutonomousAgent:
         """
             The agent continually acts on and learns from its environment.
         """
-        self.max_episodes = 1000
+        self.max_episodes = 10000
         self.max_timesteps = 2000
         self.episode_save_period = 10
         self.episode = 0

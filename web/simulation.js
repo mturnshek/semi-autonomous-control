@@ -22,8 +22,8 @@ class Asteroid {
   constructor(x, y, map_size) {
     this.x = x;
     this.y = y;
-    const velocity_range_min = -1.0;
-    const velocity_range_max = 1.0;
+    const velocity_range_min = -0.8;
+    const velocity_range_max = 0.8;
     this.dx = Math.random() * (velocity_range_max - velocity_range_min) + velocity_range_min;
     this.dy = Math.random() * (velocity_range_max - velocity_range_min) + velocity_range_min;
     // this.dx = -1.0;
@@ -58,7 +58,7 @@ class Spaceship {
     this.dy = 0.0;
     this.r = 4.0;
     this.acceleration = 1.0;
-    this.top_speed = 3.0;
+    this.top_speed = 2.5;
     this.speed_decay = 0.5; // must be less than acceleration to allow movement
     this.feeler_inner_r = 6.0; // feelers are what the ship uses to detect surrounding asteroids
     this.feeler_middle_r = 9.0;
@@ -167,7 +167,7 @@ class Simulation {
 
   create_asteroids() {
     this.asteroids = new Array();
-    let asteroid_spacing = 40.0;
+    let asteroid_spacing = 30.0;
     for (let x = 0; x < this.map_size; x += asteroid_spacing) {
       for (let y = 0; y < this.map_size; y += asteroid_spacing) {
         this.asteroids.push(new Asteroid(x, y, this.map_size));

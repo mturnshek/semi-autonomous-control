@@ -3,7 +3,7 @@ import numpy as np
 
 class MarkovActionGenerator:
     def __init__(self):
-        self.chance_of_random_action = .3
+        self.chance_of_random_action = .05
         self.none = np.array([1., 0., 0., 0., 0.])
         self.left = np.array([0., 1., 0., 0., 0.])
         self.up = np.array([0., 0., 1., 0., 0.])

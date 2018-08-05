@@ -64,7 +64,7 @@ class SemiAutonomousControlEnvironment:
         return np.array_equal(action, human_action)
 
     def parse_reward_and_log(self, state, action):
-        ship_collision_reward = -5.0
+        ship_collision_reward = -8.0
         human_action_passthrough_reward = 1.0
         other_action_reward = 0.0
 
