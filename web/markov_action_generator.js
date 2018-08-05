@@ -3,7 +3,7 @@ class MarkovActionGenerator {
     this.chance_of_random_action = 0.3;
     this.none = [1, 0, 0, 0, 0];
     this.left = [0, 1, 0, 0, 0];
-    this.up = [0, 1, 1, 0, 0];
+    this.up = [0, 0, 1, 0, 0];
     this.right = [0, 0, 0, 1, 0];
     this.down = [0, 0, 0, 0, 1];
     this.action = this.random_action();
