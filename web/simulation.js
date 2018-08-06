@@ -22,8 +22,8 @@ class Asteroid {
   constructor(x, y, map_size) {
     this.x = x;
     this.y = y;
-    this.vel_min = -0.8;
-    this.vel_max = 0.8;
+    this.vel_min = -0.5;
+    this.vel_max = 0.5;
     this.dx = Math.random() * (this.vel_max - this.vel_min) + this.vel_min;
     this.dy = Math.random() * (this.vel_max - this.vel_min) + this.vel_min;
     this.vel_update_perturbation = 0.05;
@@ -73,11 +73,11 @@ class Spaceship {
     this.dy = 0.0;
     this.r = 4.0;
     this.acceleration = 1.0;
-    this.top_speed = 2.5;
+    this.top_speed = 2.2;
     this.speed_decay = 0.5; // must be less than acceleration to allow movement
-    this.feeler_inner_r = 6.0; // feelers are what the ship uses to detect surrounding asteroids
-    this.feeler_middle_r = 9.0;
-    this.feeler_outer_r = 12.0;
+    this.feeler_inner_r = 8.0; // feelers are what the ship uses to detect surrounding asteroids
+    this.feeler_middle_r = 12.0;
+    this.feeler_outer_r = 16.0;
     this.num_inner_feelers = 32; // inner ring
     this.num_middle_feelers = 32; //middle ring
     this.num_outer_feelers = 32; // outer ring

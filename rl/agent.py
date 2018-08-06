@@ -77,7 +77,7 @@ class SemiAutonomousAgent:
         print('\n\n')
 
     def generate_tensorforce_agent(self):
-        with open('tensorforce_configs/mlp2_64_network.json', 'r') as fp:
+        with open('tensorforce_configs/mlp2_128_network.json', 'r') as fp:
             network_spec = json.load(fp=fp)
         with open('tensorforce_configs/ppo.json', 'r') as fp:
             agent_config = json.load(fp=fp)
