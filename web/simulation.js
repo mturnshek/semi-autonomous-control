@@ -22,12 +22,11 @@ class Asteroid {
   constructor(x, y, map_size) {
     this.x = x;
     this.y = y;
-    const velocity_range_min = -0.8;
-    const velocity_range_max = 0.8;
-    this.dx = Math.random() * (velocity_range_max - velocity_range_min) + velocity_range_min;
-    this.dy = Math.random() * (velocity_range_max - velocity_range_min) + velocity_range_min;
-    // this.dx = -1.0;
-    // this.dy = 0.0;
+    this.vel_min = -0.8;
+    this.vel_max = 0.8;
+    this.dx = Math.random() * (this.vel_max - this.vel_min) + this.vel_min;
+    this.dy = Math.random() * (this.vel_max - this.vel_min) + this.vel_min;
+    this.vel_update_perturbation = 0.05;
     this.r = 2.0;
     this.map_size = map_size
   }
@@ -35,6 +34,22 @@ class Asteroid {
   update() {
     this.x += this.dx;
     this.y += this.dy;
+
+    // over time, add asteroid speed perturbations
+    this.dx += (Math.random() - 0.5) * this.vel_update_perturbation;
+    this.dy += (Math.random() - 0.5) * this.vel_update_perturbation;
+
+    // still, stay in vel range
+    if (this.dx > this.vel_max) {
+      this.dx = this.vel_max;
+    } else if (this.dx < this.vel_min) {
+      this.dx = this.vel_min;
+    }
+    if (this.dy > this.vel_max) {
+      this.dy = this.vel_max;
+    } else if (this.dy < this.vel_min) {
+      this.dy = this.vel_min;
+    }
 
     // map is cyclical
     this.x = (this.x + this.map_size) % this.map_size;
